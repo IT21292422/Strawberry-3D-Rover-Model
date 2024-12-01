@@ -1,0 +1,136 @@
+import React, { Component } from 'react';
+import '../styles/manualSlideShow.scss';
+
+export default class ManualSlideShow extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      deviceType: window.innerWidth <= 375 ? 'mobile' : 'desktop',
+      freshFarmDetails: [
+        { imageDesktop: 'https://placehold.co/250x250?text=Fresh\nVegetable', imageMobile: 'https://placehold.co/150x200?text=Fresh\nVegetable', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Dairy\nProducts', imageMobile: 'https://placehold.co/150x200?text=Dairy\nProducts', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Sea\nFoods', imageMobile: 'https://placehold.co/150x200?text=Sea\nFoods', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Mead\nPoultry', imageMobile: 'https://placehold.co/150x200?text=Mead\nPoultry', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Mead\nPoultry', imageMobile: 'https://placehold.co/150x200?text=Mead\nPoultry', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Mead\nPoultry', imageMobile: 'https://placehold.co/150x200?text=Mead\nPoultry', link: '#' },
+        { imageDesktop: 'https://placehold.co/250x250?text=Fresh\nFruits', imageMobile: 'https://placehold.co/150x200?text=Fresh\nFruits', link: '#' },
+      ],
+      currentStartIndex: 0,
+    };
+  }
+
+  handleRightClick = () => {
+    const { currentStartIndex, freshFarmDetails, deviceType } = this.state;
+    const maxIndex = deviceType === 'desktop' 
+      ? freshFarmDetails.length - 4 
+      : freshFarmDetails.length - 2;
+    if (currentStartIndex < maxIndex) {
+      this.setState({ currentStartIndex: currentStartIndex + (deviceType === 'desktop' ? 1 : 2) });
+    }
+  };
+
+  handleLeftClick = () => {
+    const { currentStartIndex, deviceType } = this.state;
+    if (currentStartIndex > 0) {
+      this.setState({ currentStartIndex: currentStartIndex - (deviceType === 'desktop' ? 1 : 2) });
+    }
+  };
+
+  render() {
+    const { freshFarmDetails, currentStartIndex, deviceType } = this.state;
+    const visibleItems = deviceType === 'desktop' 
+      ? freshFarmDetails.slice(currentStartIndex, currentStartIndex + 4) 
+      : freshFarmDetails.slice(currentStartIndex, currentStartIndex + 2);
+
+    return (
+      <div className="credit-container">
+        <div className="mobile-left-mover" onClick={this.handleLeftClick}>left</div>
+        <div className="credit-grid">
+          {visibleItems.map((e, index) => (
+            <div key={index}>
+              <img
+                className="credit-img"
+                src={deviceType === 'desktop' ? e.imageDesktop : e.imageMobile}
+                onClick={() => { window.location.href = e.link; }}
+                alt="Farm Detail"
+              />
+            </div>
+          ))}
+        </div>
+        <div className="mobile-right-mover" onClick={this.handleRightClick}>right</div>
+        <div className="desktop-mover">
+          <div className="left-mover" onClick={this.handleLeftClick}>Left</div>
+          <div className="right-mover" onClick={this.handleRightClick}>Right</div>
+        </div>
+      </div>
+    );
+  }
+}
+
+//////////// CSS /////////////
+
+$mobileLargeScreen: 400px;
+
+.credit-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.credit-grid {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none; // For Firefox
+  @media screen and (max-width: $mobileLargeScreen) {
+    flex-wrap: nowrap;
+    overflow: hidden;
+    justify-content: center;
+  }
+}
+
+.credit-img {
+  border-bottom-right-radius: 1rem;
+  border-top-left-radius: 1rem;
+  scroll-snap-align: start;
+  @media screen and (max-width: $mobileLargeScreen) {
+    width: calc(100% - 0.5rem); // Adjust the width to fit two images
+  }
+}
+
+.mobile-left-mover, .mobile-right-mover {
+  display: none;
+  @media screen and (max-width: $mobileLargeScreen) {
+    display: block;
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+  }
+}
+
+.mobile-left-mover {
+  left: 0;
+}
+
+.mobile-right-mover {
+  right: 0;
+}
+
+.desktop-mover {
+  display: flex;
+  position: relative;
+  gap: 1rem;
+  top: 10rem;
+  right: 5rem;
+  @media screen and (max-width: $mobileLargeScreen) {
+    display: none;
+  }
+}
+
+.left-mover, .right-mover {
+  cursor: pointer;
+}

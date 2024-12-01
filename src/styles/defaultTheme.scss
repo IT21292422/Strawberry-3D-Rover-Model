@@ -1,0 +1,111 @@
+$primaryColor: #51ac37;
+$secondaryColor: #5c5c5c;
+$warningColor: #f4901f;
+$errorColor: #bd2130;
+
+$primaryDarkColor: #051500;
+$secondaryDarkColor: #0b2f00;
+
+$tabScreen: 800px;
+$mobileLargeScreen: 430px;
+$mobileSmallScreen: 375px;
+
+
+body {    
+    // font-family: "Foco";
+}
+
+.test {
+    font-size: 25px;
+}
+.form-control {
+    border-top-right-radius: 1.375rem !important;
+    border-bottom-left-radius: 1.375rem !important;
+    height: 2.8125rem;
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+.text-box-height {
+    height: calc(1.5em + 0.75rem + 0.125rem) !important;
+}
+.no-left-radius {
+    border-top-left-radius: 0rem !important;
+    border-bottom-left-radius: 0rem !important;
+}
+.no-right-radius {
+    border-top-right-radius: 0rem !important;
+    border-bottom-right-radius: 0rem !important;
+}
+.no-left-border {
+    border-left: 0rem !important;
+}
+
+.Toastify__toast {
+    color: white;
+    text-align: center;
+    background: #51ac37f2;
+    border-radius: 0rem 1.875rem !important;
+    i {
+        margin: 0 5px;
+        font-size: 16px;
+    }
+}
+
+.MobileInputHeight{
+    height: 3.4rem !important;
+}
+
+.DesktopInputHeight{
+    height: 2.76rem !important;
+}
+
+.RegistrationDesktopInputHeight{
+    height: 2.7rem !important;
+}
+/*-- Default font size --*/
+html {
+    font-size: 16px;
+}
+
+@media (max-width: 320px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media (min-width: 321px) {
+    html {
+        font-size: 10px;
+    }
+}
+
+@media (min-width: 375px) {
+    html {
+        font-size: 11px;
+    }
+}
+@media (min-width: 768px) {
+    html {
+        font-size: 11px;
+    }
+}
+
+@media (min-width: 1200px) {
+    html {
+        font-size: 12px;
+    }
+}
+
+@media (min-width: 1400px) {
+    html {
+        font-size: 14px;
+    }
+}
+
+@media (min-width: 2000px) {
+    html {
+        font-size: 15px;
+    }
+}
+
