@@ -112,6 +112,17 @@ class ThreePotScene extends Component {
     controls.enableRotate = true;
     controls.enableZoom = false;
 
+    function triggerMoveForward() {
+      this.moveForward = true;
+      setTimeout(() => {
+        this.moveForward = false;
+      }, 100);
+    }
+    
+    setInterval(() => {
+      triggerMoveForward.call(this);
+    }, 3000);
+
     const animate = () => {
       requestAnimationFrame(animate);
       
