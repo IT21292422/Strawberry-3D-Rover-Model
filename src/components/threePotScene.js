@@ -10,6 +10,7 @@ class ThreePotScene extends Component {
     this.potsGroup = new THREE.Group();
     this.potsAwayGroup1 = new THREE.Group();
     this.potsAwayGroup2 = new THREE.Group();
+    this.flowersGroup = new THREE.Group();
     this.moveForward = false;
     this.moveBackward = false;
     this.camera = null;
@@ -17,13 +18,21 @@ class ThreePotScene extends Component {
     this.raycaster = new THREE.Raycaster();
     this.mouse = new THREE.Vector2();
     this.pots = [];
+    this.flowerCoordinates = [];
   }
 
   componentDidMount() {
+    this.flowerCoordinates = [
+      { x: 0.5949, y: 0.2887, confidence: 0.4 },
+      { x: 0.3687, y: 0.2971, confidence: 0.34 },
+      { x: 0.2749, y: 0.4298, confidence: 0.77 },
+      { x: 0.7056, y: 0.4312, confidence: 0.88 },
+    ];
+
     const canvas = document.getElementById("webgl");
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
-    
+
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x808080);
@@ -32,6 +41,7 @@ class ThreePotScene extends Component {
     this.allPotsGroup.add(this.potsGroup);
     this.allPotsGroup.add(this.potsAwayGroup1);
     this.allPotsGroup.add(this.potsAwayGroup2);
+    this.allPotsGroup.add(this.flowersGroup);
     scene.add(this.allPotsGroup);
 
     const galaxyPosition = {
@@ -46,29 +56,52 @@ class ThreePotScene extends Component {
       0.1,
       1000
     );
-    this.camera.position.set(galaxyPosition.x, galaxyPosition.y, galaxyPosition.z);
+    this.camera.position.set(
+      galaxyPosition.x,
+      galaxyPosition.y,
+      galaxyPosition.z
+    );
 
     const controls = new OrbitControls(this.camera, this.renderer.domElement);
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
 
+    // const axesHelper = new THREE.AxesHelper(5);
+    // scene.add(axesHelper);
+
+    // const gridHelper = new THREE.GridHelper();
+    // scene.add(gridHelper);
+
     const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
     scene.add(ambientLight);
 
-    const directionalLight1 = new THREE.DirectionalLight(0xffffff,5);
+    const directionalLight1 = new THREE.DirectionalLight(0xffffff, 5);
     directionalLight1.position.set(5, 5, 5);
     scene.add(directionalLight1);
 
-    const directionalLight2 = new THREE.DirectionalLight(0xffffff,5);
+    const directionalLight2 = new THREE.DirectionalLight(0xffffff, 5);
     directionalLight2.position.set(-10, -10, -10);
     scene.add(directionalLight2);
 
     const loader = new GLTFLoader();
 
+    loader.load("flower2.glb", (gltf) => {
+      const flowerTemplate = gltf.scene;
+      flowerTemplate.scale.set(0.2, 0.2, 0.2);
+      this.flowerCoordinates.forEach((coord, index) => {
+        const flower = flowerTemplate.clone();
+        flower.position.x = (coord.x - 0.5) * 2.5;
+        flower.position.z = (coord.y - 0.5) * 2.5;
+        flower.position.y = 1 + index * 0.2;
+        flower.rotation.y = Math.random() * Math.PI;
+        this.flowersGroup.add(flower);
+      });
+    });
+
     loader.load("new_rover1.glb", (gltf) => {
       this.roverModel = gltf.scene;
       this.roverModel.position.set(0, -0.1, 0);
-      // this.roverModel.scale.set(1.5, 2, 1.5);
+      this.roverModel.scale.set(1.5, 2, 1.5);
       this.roverModel.scale.set(0.5, 0.5, 0.5);
       scene.add(this.roverModel);
     });
@@ -86,19 +119,19 @@ class ThreePotScene extends Component {
         const pot = potTemplate.clone();
         const pot1 = potTemplateAway1.clone();
         const pot2 = potTemplateAway2.clone();
-        
+
         // Calculate position
         const position = i * 2.5; // Full circle divided into 10 parts
-        
+
         pot.position.set(0, 0, position);
         pot1.position.set(3, 0, position);
         pot2.position.set(-3, 0, position);
-        
+
         // Rotate pot 90 degrees around Y-axis
         pot.rotation.y = Math.PI / 2; // 90 degrees + angle to face outward
         pot1.rotation.y = Math.PI / 2; // 90 degrees + angle to face outward
         pot2.rotation.y = Math.PI / 2; // 90 degrees + angle to face outward
-        
+
         pot.userData = { index: i };
         this.pots.push(pot);
         this.potsGroup.add(pot);
@@ -118,14 +151,14 @@ class ThreePotScene extends Component {
         this.moveForward = false;
       }, 100);
     }
-    
+
     setInterval(() => {
       triggerMoveForward.call(this);
     }, 3000);
 
     const animate = () => {
       requestAnimationFrame(animate);
-      
+
       // Move all pots if 'W' or 'S' is pressed
       if (this.moveForward) {
         this.allPotsGroup.position.z -= 0.1; // Adjust speed as needed
@@ -139,10 +172,10 @@ class ThreePotScene extends Component {
     };
     animate();
 
-    window.addEventListener('resize', this.onWindowResize, false);
-    window.addEventListener('keydown', this.onKeyDown, false);
-    window.addEventListener('keyup', this.onKeyUp, false);
-    window.addEventListener('click', this.onMouseClick, false);
+    window.addEventListener("resize", this.onWindowResize, false);
+    window.addEventListener("keydown", this.onKeyDown, false);
+    window.addEventListener("keyup", this.onKeyUp, false);
+    window.addEventListener("click", this.onMouseClick, false);
   }
 
   onWindowResize = () => {
@@ -151,25 +184,25 @@ class ThreePotScene extends Component {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
     }
-  }
+  };
 
   onKeyDown = (event) => {
-    if (event.key.toLowerCase() === 'w') {
+    if (event.key.toLowerCase() === "w") {
       this.moveForward = true;
     }
-    if (event.key.toLowerCase() === 's') {
+    if (event.key.toLowerCase() === "s") {
       this.moveBackward = true;
     }
-  }
+  };
 
   onKeyUp = (event) => {
-    if (event.key.toLowerCase() === 'w') {
+    if (event.key.toLowerCase() === "w") {
       this.moveForward = false;
     }
-    if (event.key.toLowerCase() === 's') {
+    if (event.key.toLowerCase() === "s") {
       this.moveBackward = false;
     }
-  }
+  };
 
   onMouseClick = (event) => {
     // Calculate mouse position in normalized device coordinates
@@ -181,37 +214,43 @@ class ThreePotScene extends Component {
 
     // Calculate objects intersecting the picking ray
     if (this.roverModel) {
-      const roverIntersect = this.raycaster.intersectObject(this.roverModel, true);
-    
+      const roverIntersect = this.raycaster.intersectObject(
+        this.roverModel,
+        true
+      );
+
       if (roverIntersect.length > 0) {
         console.log("Rover is clicked");
-        alert('Rover is clicked');
+        alert("Rover is clicked");
       }
     }
 
     // Calculate objects intersecting the picking ray
-    const intersects = this.raycaster.intersectObjects(this.potsGroup.children, true);
+    const intersects = this.raycaster.intersectObjects(
+      this.potsGroup.children,
+      true
+    );
 
     if (intersects.length > 0) {
       // Get the first intersected object
       const object = intersects[0].object;
       // Traverse up to find the root pot object
       let potObject = object;
-      while (potObject.parent && !potObject.userData.hasOwnProperty('index')) {
+      while (potObject.parent && !potObject.userData.hasOwnProperty("index")) {
         potObject = potObject.parent;
       }
-      if (potObject.userData.hasOwnProperty('index')) {
+      if (potObject.userData.hasOwnProperty("index")) {
         console.log(`Pot ${potObject.userData.index} clicked!`);
-        alert(`${potObject.userData.index} pot is clicked`)
+        alert(`${potObject.userData.index} pot is clicked`);
       }
     }
-  }
+  };
 
   componentWillUnmount() {
-    window.removeEventListener('resize', this.onWindowResize);
-    window.removeEventListener('keydown', this.onKeyDown);
-    window.removeEventListener('keyup', this.onKeyUp);
-    window.removeEventListener('click', this.onMouseClick);
+    window.removeEventListener("resize", this.onWindowResize);
+    window.removeEventListener("keydown", this.onKeyDown);
+    window.removeEventListener("keyup", this.onKeyUp);
+    window.removeEventListener("click", this.onMouseClick);
   }
 
   render() {
