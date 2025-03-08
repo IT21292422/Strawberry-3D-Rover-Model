@@ -4,7 +4,7 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { useGetCurrentOperationStatus } from "../../utils/api";
 import StatusCard from "../StatusCard/StatusCard";
-import { RoverStatus } from "../../types/types";
+import { FlowerData, RoverStatus } from "../../types/types";
 
 interface Props {
   roverId: string;
@@ -25,8 +25,8 @@ const RoverScene = ({ roverId }: Props) => {
   const mouse = useRef(new THREE.Vector2());
   const pots = useRef<THREE.Group[]>([]);
   const roverModel = useRef<THREE.Group | null>(null);
-  const allObjectsGroup = useRef(new THREE.Group());
 
+  const [flowers, setFlowers] = useState<FlowerData[]>([]);
   const [potCount, setPotCount] = useState(10);
   const [status, setStatus] = useState<RoverStatus | undefined>();
 
@@ -50,6 +50,106 @@ const RoverScene = ({ roverId }: Props) => {
     { x: 0.2749, y: 0.4298, confidence: 0.77 },
     { x: 0.7056, y: 0.4312, confidence: 0.88 },
   ];
+
+  const flowerss = [
+    {
+      id: 80,
+      rover_id: 1,
+      random_id: 1,
+      battery_status: 12.3,
+      temp: 12.3,
+      humidity: 12.3,
+      blob_url:
+        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/94987597-a59a-4df8-ab50-c99d38648a5a.jpeg",
+      image_data:
+        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
+      created_at: {
+        $date: "2025-02-01T08:18:06.938Z",
+      },
+    },
+    {
+      id: 81,
+      rover_id: 1,
+      random_id: 1,
+      battery_status: 12.3,
+      temp: 12.3,
+      humidity: 12.3,
+      blob_url:
+        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/87a2d6b4-3018-4d6c-9d5f-b0e0280a32e9.jpeg",
+      image_data:
+        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
+      created_at: {
+        $date: "2025-02-01T08:18:27.704Z",
+      },
+    },
+    {
+      _id: {
+        $oid: "679ddbcb5b22281b227f0078",
+      },
+      id: 83,
+      rover_id: 1,
+      random_id: 1,
+      battery_status: 12.3,
+      temp: 12.3,
+      humidity: 12.3,
+      blob_url:
+        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/bbcc6a6c-dfb1-4efc-b17f-c6260d03653c.jpeg",
+      image_data:
+        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
+      created_at: {
+        $date: "2025-02-01T08:30:01.524Z",
+      },
+    },
+  ];
+
+  const removeOldPots = () => {
+    while (pots.current.length > potCount) {
+      const removedPot = pots.current.shift();
+      if (removedPot) {
+        potsGroup.current.remove(removedPot);
+      }
+
+      const removedPot1 = potsAwayGroup1.current.children.shift();
+      if (removedPot1) {
+        potsAwayGroup1.current.remove(removedPot1);
+      }
+
+      const removedPot2 = potsAwayGroup2.current.children.shift();
+      if (removedPot2) {
+        potsAwayGroup2.current.remove(removedPot2);
+      }
+    }
+  };
+
+  const addNewPots = () => {
+    const loader = new GLTFLoader();
+    loader.load("pot.glb", (gltf) => {
+      const potTemplate = gltf.scene;
+      potTemplate.scale.set(0.5, 0.5, 0.5);
+
+      for (let i = potCount - 5; i < potCount; i++) {
+        const pot = potTemplate.clone();
+        const pot1 = potTemplate.clone();
+        const pot2 = potTemplate.clone();
+
+        const position = i * 2.5;
+        pot.position.set(0, 0, position);
+        pot1.position.set(3, 0, position);
+        pot2.position.set(-3, 0, position);
+
+        pot.rotation.y = Math.PI / 2;
+        pot1.rotation.y = Math.PI / 2;
+        pot2.rotation.y = Math.PI / 2;
+
+        pot.userData = { index: i };
+        pots.current.push(pot);
+        potsGroup.current.add(pot);
+        potsAwayGroup1.current.add(pot1);
+        potsAwayGroup2.current.add(pot2);
+      }
+      removeOldPots();
+    });
+  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -167,8 +267,12 @@ const RoverScene = ({ roverId }: Props) => {
 
       if (statusRef.current === RoverStatus.START) {
         allPotsGroup.current.position.z -= 0.01;
-        if (allPotsGroup.current.position.z < -10) {
-          allPotsGroup.current.position.z = -1;
+        // if (allPotsGroup.current.position.z < -10) {
+        //   allPotsGroup.current.position.z = -1;
+        // }
+        if (Math.abs(allPotsGroup.current.position.z) > potCount - 10) {
+          setPotCount((prev) => prev + 5);
+          addNewPots();
         }
       }
 
@@ -243,6 +347,33 @@ const RoverScene = ({ roverId }: Props) => {
       renderer.current?.dispose();
     };
   }, []);
+
+  useEffect(() => {
+    if (flowers.length > 0) {
+      const loader = new GLTFLoader();
+      loader.load("flower.glb", (gltf) => {
+        const flowerTemplate = gltf.scene;
+        flowerTemplate.scale.set(0.2, 0.2, 0.2);
+
+        flowers.forEach((coord) => {
+          const flower = flowerTemplate.clone();
+
+          // Convert relative coordinates to scene positions
+          const potIndex = Math.floor((potCount - 5) / 2); // Roughly near the rover
+          const pot = pots.current[potIndex];
+
+          if (pot) {
+            flower.position.set(
+              pot.position.x + (coord.x - 0.5) * 2.5,
+              1,
+              pot.position.z + (coord.y - 0.5) * 2.5
+            );
+            flowersGroup.current.add(flower);
+          }
+        });
+      });
+    }
+  }, [flowers]);
 
   return (
     <div>
