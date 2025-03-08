@@ -267,13 +267,13 @@ const RoverScene = ({ roverId }: Props) => {
 
       if (statusRef.current === RoverStatus.START) {
         allPotsGroup.current.position.z -= 0.01;
-        // if (allPotsGroup.current.position.z < -10) {
-        //   allPotsGroup.current.position.z = -1;
-        // }
-        if (Math.abs(allPotsGroup.current.position.z) > potCount - 10) {
-          setPotCount((prev) => prev + 5);
-          addNewPots();
+        if (allPotsGroup.current.position.z < -10) {
+          allPotsGroup.current.position.z = -1;
         }
+        // if (Math.abs(allPotsGroup.current.position.z) > potCount - 10) {
+        //   setPotCount((prev) => prev + 5);
+        //   addNewPots();
+        // }
       }
 
       controls.update();
