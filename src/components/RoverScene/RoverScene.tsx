@@ -31,7 +31,7 @@ const RoverScene = ({ roverId }: Props) => {
   const pots = useRef<THREE.Group[]>([]);
   const roverModel = useRef<THREE.Group | null>(null);
 
-  const [potCount, setPotCount] = useState(10);
+  const [potCount] = useState(10);
   const [status, setStatus] = useState<RoverStatus | undefined>();
   const [isMoving, setIsMoving] = useState(true);
 
@@ -81,7 +81,7 @@ const RoverScene = ({ roverId }: Props) => {
             const flower = flowerTemplate.clone();
             flower.position.x = (coord.x - 0.5) * 2;
             flower.position.z = (coord.y - 0.5) * 2;
-            flower.position.y = 1;
+            flower.position.y = 0.7;
             flower.rotation.y = Math.random() * Math.PI;
             flowersGroup.current.add(flower);
           });
@@ -92,16 +92,10 @@ const RoverScene = ({ roverId }: Props) => {
     }
   }, [currentStatus]);
 
-  const flowerCoordinates = [
-    { x: 0.5949, y: 0.2887, confidence: 0.4 },
-    { x: 0.3687, y: 0.2971, confidence: 0.34 },
-    { x: 0.2749, y: 0.4298, confidence: 0.77 },
-    { x: 0.7056, y: 0.4312, confidence: 0.88 },
-  ];
-
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    if (renderer.current) return;
     renderer.current = new THREE.WebGLRenderer({ canvas, antialias: true });
     if (renderer.current) {
       renderer.current.setSize(window.innerWidth, window.innerHeight);
@@ -109,7 +103,17 @@ const RoverScene = ({ roverId }: Props) => {
     renderer.current.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x808080);
+    scene.background = new THREE.Color(0x87ceeb);
+
+    const groundGeometry = new THREE.PlaneGeometry(50, 50);
+    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 }); // Forest Green
+    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+    ground.rotation.x = -Math.PI / 2;
+    ground.position.y = 0;
+    scene.add(ground);
+
+    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0xffffff, 0.7);
+    scene.add(hemiLight);
 
     allPotsGroup.current.add(potsGroup.current);
     allPotsGroup.current.add(potsAwayGroup1.current);
@@ -158,15 +162,15 @@ const RoverScene = ({ roverId }: Props) => {
     });
 
     let potTemplate: THREE.Group<THREE.Object3DEventMap>;
-    loader.load("pot.glb", (gltf) => {
+    loader.load("bush.glb", (gltf) => {
       potTemplate = gltf.scene;
-      potTemplate.scale.set(0.5, 0.5, 0.5);
+      potTemplate.scale.set(1, 1, 1);
       const potTemplateAway1 = gltf.scene.clone();
-      potTemplateAway1.scale.set(0.5, 0.5, 0.5);
+      potTemplateAway1.scale.set(1, 1, 1);
       const potTemplateAway2 = gltf.scene.clone();
-      potTemplateAway2.scale.set(0.5, 0.5, 0.5);
+      potTemplateAway2.scale.set(1, 1, 1);
 
-      for (let i = -10; i < potCount; i++) {
+      for (let i = -3; i < potCount; i++) {
         const pot = potTemplate.clone();
         const pot1 = potTemplateAway1.clone();
         const pot2 = potTemplateAway2.clone();
