@@ -34,8 +34,7 @@ function App() {
 
   return (
     <>
-      <InfoPanel receivedData={receivedData} />
-      <RoverScene roverId="1" />
+      <RoverScene roverId={receivedData?.roverId} />
     </>
   );
 }
