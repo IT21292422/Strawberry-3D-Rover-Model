@@ -77,7 +77,7 @@ const RoverScene = ({ roverId }: Props) => {
           const flowerTemplate = gltf.scene;
           flowerTemplate.scale.set(0.2, 0.2, 0.2);
 
-          coordinates.forEach((coord) => {
+          coordinates.forEach((coord: any) => {
             const flower = flowerTemplate.clone();
             flower.position.x = (coord.x - 0.5) * 2;
             flower.position.z = (coord.y - 0.5) * 2;
@@ -103,7 +103,9 @@ const RoverScene = ({ roverId }: Props) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     renderer.current = new THREE.WebGLRenderer({ canvas, antialias: true });
-    renderer.current.setSize(window.innerWidth, window.innerHeight);
+    if (renderer.current) {
+      renderer.current.setSize(window.innerWidth, window.innerHeight);
+    }
     renderer.current.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
@@ -208,14 +210,20 @@ const RoverScene = ({ roverId }: Props) => {
       }
 
       controls.update();
-      renderer.current.render(scene, camera.current);
+      if (renderer.current && camera.current) {
+        renderer.current.render(scene, camera.current);
+      }
     };
     animate();
 
     const onWindowResize = () => {
-      camera.current.aspect = window.innerWidth / window.innerHeight;
-      camera.current.updateProjectionMatrix();
-      renderer.current.setSize(window.innerWidth, window.innerHeight);
+      if (camera.current) {
+        camera.current.aspect = window.innerWidth / window.innerHeight;
+        camera.current.updateProjectionMatrix();
+      }
+      if (renderer.current) {
+        renderer.current.setSize(window.innerWidth, window.innerHeight);
+      }
     };
 
     const onKeyDown = (event: KeyboardEvent) => {
@@ -232,7 +240,9 @@ const RoverScene = ({ roverId }: Props) => {
       mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-      raycaster.current.setFromCamera(mouse.current, camera.current);
+      if (camera.current) {
+        raycaster.current.setFromCamera(mouse.current, camera.current);
+      }
 
       if (roverModel.current) {
         const roverIntersect = raycaster.current.intersectObject(

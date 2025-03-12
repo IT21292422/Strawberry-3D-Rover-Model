@@ -1,7 +1,6 @@
 import RoverScene from "./components/RoverScene/RoverScene";
 import "./App.css";
 import { useEffect, useState } from "react";
-import InfoPanel from "./components/InfoPanel/InfoPanel";
 
 declare global {
   interface Window {
@@ -11,7 +10,11 @@ declare global {
 }
 
 function App() {
-  const [receivedData, setReceivedData] = useState(null);
+  interface MobileData {
+    roverId: string;
+  }
+
+  const [receivedData, setReceivedData] = useState<MobileData | null>(null);
 
   useEffect(() => {
     // Define global function to handle mobile data
@@ -34,7 +37,7 @@ function App() {
 
   return (
     <>
-      <RoverScene roverId={receivedData?.roverId} />
+      <RoverScene roverId={receivedData?.roverId as string} />
     </>
   );
 }
