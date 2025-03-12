@@ -2,9 +2,14 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { useGetCurrentOperationStatus } from "../../utils/api";
+import {
+  useGetCurrentOperationStatus,
+  useGetCurrentStatus,
+} from "../../utils/api";
 import StatusCard from "../StatusCard/StatusCard";
-import { FlowerData, RoverStatus } from "../../types/types";
+import { RoverStatus } from "../../types/types";
+import InfoPanel from "../InfoPanel/InfoPanel";
+import ImageCard from "../ImageCard/ImageCard";
 
 interface Props {
   roverId: string;
@@ -26,13 +31,17 @@ const RoverScene = ({ roverId }: Props) => {
   const pots = useRef<THREE.Group[]>([]);
   const roverModel = useRef<THREE.Group | null>(null);
 
-  const [flowers, setFlowers] = useState<FlowerData[]>([]);
   const [potCount, setPotCount] = useState(10);
   const [status, setStatus] = useState<RoverStatus | undefined>();
+  const [isMoving, setIsMoving] = useState(true);
+
+  const isMovingRef = useRef(isMoving);
 
   const statusRef = useRef(status);
 
   const { data: operationStatus } = useGetCurrentOperationStatus(roverId);
+
+  const { data: currentStatus } = useGetCurrentStatus(roverId);
 
   useEffect(() => {
     if (operationStatus) {
@@ -42,7 +51,46 @@ const RoverScene = ({ roverId }: Props) => {
 
   useEffect(() => {
     statusRef.current = status;
+    if (status === RoverStatus.START) {
+      setIsMoving(true);
+      isMovingRef.current = true;
+      const moveInterval = setInterval(() => {
+        setIsMoving((prev) => !prev);
+        isMovingRef.current = !isMovingRef.current;
+      }, 3000);
+
+      return () => clearInterval(moveInterval);
+    }
   }, [status]);
+
+  useEffect(() => {
+    if (currentStatus?.coordinates) {
+      try {
+        const coordinates = JSON.parse(currentStatus.coordinates);
+        if (flowersGroup.current) {
+          while (flowersGroup.current.children.length > 0) {
+            flowersGroup.current.clear();
+          }
+        }
+        const loader = new GLTFLoader();
+        loader.load("flower.glb", (gltf) => {
+          const flowerTemplate = gltf.scene;
+          flowerTemplate.scale.set(0.2, 0.2, 0.2);
+
+          coordinates.forEach((coord) => {
+            const flower = flowerTemplate.clone();
+            flower.position.x = (coord.x - 0.5) * 2;
+            flower.position.z = (coord.y - 0.5) * 2;
+            flower.position.y = 1;
+            flower.rotation.y = Math.random() * Math.PI;
+            flowersGroup.current.add(flower);
+          });
+        });
+      } catch (error) {
+        console.error("Error in parsing coordinates", error);
+      }
+    }
+  }, [currentStatus]);
 
   const flowerCoordinates = [
     { x: 0.5949, y: 0.2887, confidence: 0.4 },
@@ -50,106 +98,6 @@ const RoverScene = ({ roverId }: Props) => {
     { x: 0.2749, y: 0.4298, confidence: 0.77 },
     { x: 0.7056, y: 0.4312, confidence: 0.88 },
   ];
-
-  const flowerss = [
-    {
-      id: 80,
-      rover_id: 1,
-      random_id: 1,
-      battery_status: 12.3,
-      temp: 12.3,
-      humidity: 12.3,
-      blob_url:
-        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/94987597-a59a-4df8-ab50-c99d38648a5a.jpeg",
-      image_data:
-        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
-      created_at: {
-        $date: "2025-02-01T08:18:06.938Z",
-      },
-    },
-    {
-      id: 81,
-      rover_id: 1,
-      random_id: 1,
-      battery_status: 12.3,
-      temp: 12.3,
-      humidity: 12.3,
-      blob_url:
-        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/87a2d6b4-3018-4d6c-9d5f-b0e0280a32e9.jpeg",
-      image_data:
-        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
-      created_at: {
-        $date: "2025-02-01T08:18:27.704Z",
-      },
-    },
-    {
-      _id: {
-        $oid: "679ddbcb5b22281b227f0078",
-      },
-      id: 83,
-      rover_id: 1,
-      random_id: 1,
-      battery_status: 12.3,
-      temp: 12.3,
-      humidity: 12.3,
-      blob_url:
-        "https://strawprojectimages101.blob.core.windows.net/strawberryimages/bbcc6a6c-dfb1-4efc-b17f-c6260d03653c.jpeg",
-      image_data:
-        '[{"x":0.5949,"y":0.2887,"confidence":0.4},{"x":0.3687,"y":0.2971,"confidence":0.34},{"x":0.2749,"y":0.4298,"confidence":0.77},{"x":0.7056,"y":0.4312,"confidence":0.88}]',
-      created_at: {
-        $date: "2025-02-01T08:30:01.524Z",
-      },
-    },
-  ];
-
-  const removeOldPots = () => {
-    while (pots.current.length > potCount) {
-      const removedPot = pots.current.shift();
-      if (removedPot) {
-        potsGroup.current.remove(removedPot);
-      }
-
-      const removedPot1 = potsAwayGroup1.current.children.shift();
-      if (removedPot1) {
-        potsAwayGroup1.current.remove(removedPot1);
-      }
-
-      const removedPot2 = potsAwayGroup2.current.children.shift();
-      if (removedPot2) {
-        potsAwayGroup2.current.remove(removedPot2);
-      }
-    }
-  };
-
-  const addNewPots = () => {
-    const loader = new GLTFLoader();
-    loader.load("pot.glb", (gltf) => {
-      const potTemplate = gltf.scene;
-      potTemplate.scale.set(0.5, 0.5, 0.5);
-
-      for (let i = potCount - 5; i < potCount; i++) {
-        const pot = potTemplate.clone();
-        const pot1 = potTemplate.clone();
-        const pot2 = potTemplate.clone();
-
-        const position = i * 2.5;
-        pot.position.set(0, 0, position);
-        pot1.position.set(3, 0, position);
-        pot2.position.set(-3, 0, position);
-
-        pot.rotation.y = Math.PI / 2;
-        pot1.rotation.y = Math.PI / 2;
-        pot2.rotation.y = Math.PI / 2;
-
-        pot.userData = { index: i };
-        pots.current.push(pot);
-        potsGroup.current.add(pot);
-        potsAwayGroup1.current.add(pot1);
-        potsAwayGroup2.current.add(pot2);
-      }
-      removeOldPots();
-    });
-  };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -199,19 +147,6 @@ const RoverScene = ({ roverId }: Props) => {
     scene.add(directionalLight2);
 
     const loader = new GLTFLoader();
-
-    loader.load("flower.glb", (gltf) => {
-      const flowerTemplate = gltf.scene;
-      flowerTemplate.scale.set(0.2, 0.2, 0.2);
-      flowerCoordinates.forEach((coord, index) => {
-        const flower = flowerTemplate.clone();
-        flower.position.x = (coord.x - 0.5) * 2.5;
-        flower.position.z = (coord.y - 0.5) * 2.5;
-        flower.position.y = 1 + index * 0.2;
-        flower.rotation.y = Math.random() * Math.PI;
-        flowersGroup.current.add(flower);
-      });
-    });
 
     loader.load("rover.glb", (gltf) => {
       roverModel.current = gltf.scene;
@@ -265,14 +200,10 @@ const RoverScene = ({ roverId }: Props) => {
         allPotsGroup.current.position.z += 0.1;
       }
 
-      if (statusRef.current === RoverStatus.START) {
+      if (statusRef.current === RoverStatus.START && isMovingRef.current) {
         allPotsGroup.current.position.z -= 0.01;
-        // if (allPotsGroup.current.position.z < -10) {
-        //   allPotsGroup.current.position.z = -1;
-        // }
-        if (Math.abs(allPotsGroup.current.position.z) > potCount - 10) {
-          setPotCount((prev) => prev + 5);
-          addNewPots();
+        if (allPotsGroup.current.position.z < -10) {
+          allPotsGroup.current.position.z = -1;
         }
       }
 
@@ -348,36 +279,11 @@ const RoverScene = ({ roverId }: Props) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (flowers.length > 0) {
-      const loader = new GLTFLoader();
-      loader.load("flower.glb", (gltf) => {
-        const flowerTemplate = gltf.scene;
-        flowerTemplate.scale.set(0.2, 0.2, 0.2);
-
-        flowers.forEach((coord) => {
-          const flower = flowerTemplate.clone();
-
-          // Convert relative coordinates to scene positions
-          const potIndex = Math.floor((potCount - 5) / 2); // Roughly near the rover
-          const pot = pots.current[potIndex];
-
-          if (pot) {
-            flower.position.set(
-              pot.position.x + (coord.x - 0.5) * 2.5,
-              1,
-              pot.position.z + (coord.y - 0.5) * 2.5
-            );
-            flowersGroup.current.add(flower);
-          }
-        });
-      });
-    }
-  }, [flowers]);
-
   return (
     <div>
       <StatusCard status={status ?? 0} />
+      <InfoPanel receivedData={currentStatus} />
+      <ImageCard base64Image={currentStatus?.processed_image} />
       <canvas ref={canvasRef} id="webgl" />
     </div>
   );

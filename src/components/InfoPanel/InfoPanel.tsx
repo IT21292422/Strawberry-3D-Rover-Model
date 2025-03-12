@@ -14,16 +14,15 @@ const InfoPanel = ({ receivedData }: Props) => {
         color: "white",
         zIndex: 9999,
         borderRadius: "4px",
-        maxWidth: "300px",
+        maxWidth: "150px",
         wordBreak: "break-all",
       }}
     >
-      <h3>Debug Info</h3>
-      <pre>
-        {receivedData
-          ? JSON.stringify(receivedData, null, 2)
-          : "Waiting for data..."}
-      </pre>
+      <p>Temperature: {receivedData?.temp}</p>
+      <p>Humidity: {receivedData?.humidity}</p>
+      {receivedData?.error !== "No result returned from database operation" && (
+        <p>Error: {receivedData?.error}</p>
+      )}
     </div>
   );
 };
