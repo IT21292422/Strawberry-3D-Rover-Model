@@ -105,13 +105,6 @@ const RoverScene = ({ roverId }: Props) => {
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0xadd8e6);
 
-    const groundGeometry = new THREE.PlaneGeometry(50, 50, 1, 1);
-    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x32cd32 });
-    const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-    ground.rotation.x = -Math.PI / 2;
-    ground.position.y = 0;
-    scene.add(ground);
-
     allPotsGroup.current.add(potsGroup.current);
     allPotsGroup.current.add(potsAwayGroup1.current);
     allPotsGroup.current.add(potsAwayGroup2.current);

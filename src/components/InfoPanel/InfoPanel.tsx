@@ -14,8 +14,8 @@ const InfoPanel = ({ receivedData }: Props) => {
         color: "white",
         zIndex: 9999,
         borderRadius: "4px",
-        maxWidth: "180px",
-        width: "180px",
+        maxWidth: "200px",
+        width: "200px",
         wordBreak: "break-all",
       }}
     >
