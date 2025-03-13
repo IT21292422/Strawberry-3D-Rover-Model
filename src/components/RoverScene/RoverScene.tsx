@@ -112,9 +112,6 @@ const RoverScene = ({ roverId }: Props) => {
     ground.position.y = 0;
     scene.add(ground);
 
-    const hemiLight = new THREE.HemisphereLight(0x87ceeb, 0xffffff, 0.7);
-    scene.add(hemiLight);
-
     allPotsGroup.current.add(potsGroup.current);
     allPotsGroup.current.add(potsAwayGroup1.current);
     allPotsGroup.current.add(potsAwayGroup2.current);
