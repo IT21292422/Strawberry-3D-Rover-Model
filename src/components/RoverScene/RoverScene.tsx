@@ -103,10 +103,10 @@ const RoverScene = ({ roverId }: Props) => {
     renderer.current.outputColorSpace = THREE.SRGBColorSpace;
 
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x87ceeb);
+    scene.background = new THREE.Color(0xadd8e6);
 
-    const groundGeometry = new THREE.PlaneGeometry(50, 50);
-    const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x228b22 }); // Forest Green
+    const groundGeometry = new THREE.PlaneGeometry(50, 50, 1, 1);
+    const groundMaterial = new THREE.MeshBasicMaterial({ color: 0x32cd32 });
     const ground = new THREE.Mesh(groundGeometry, groundMaterial);
     ground.rotation.x = -Math.PI / 2;
     ground.position.y = 0;

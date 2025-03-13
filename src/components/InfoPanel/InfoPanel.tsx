@@ -14,12 +14,13 @@ const InfoPanel = ({ receivedData }: Props) => {
         color: "white",
         zIndex: 9999,
         borderRadius: "4px",
-        maxWidth: "150px",
+        maxWidth: "180px",
+        width: "180px",
         wordBreak: "break-all",
       }}
     >
-      <p>Temperature: {receivedData?.temp}</p>
-      <p>Humidity: {receivedData?.humidity}</p>
+      <p>Temperature: {receivedData?.temp}°C</p>
+      <p>Humidity: {receivedData?.humidity}%</p>
       {receivedData?.error !== "No result returned from database operation" && (
         <p>Error: {receivedData?.error}</p>
       )}
