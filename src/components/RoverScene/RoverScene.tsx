@@ -10,6 +10,7 @@ import StatusCard from "../StatusCard/StatusCard";
 import { RoverStatus } from "../../types/types";
 import InfoPanel from "../InfoPanel/InfoPanel";
 import ImageCard from "../ImageCard/ImageCard";
+import ResetCamera from "../ResetCamera/ResetCamera";
 
 interface Props {
   roverId: string;
@@ -92,6 +93,18 @@ const RoverScene = ({ roverId }: Props) => {
     }
   }, [currentStatus]);
 
+  const galaxyPosition = { x: 0, y: 3, z: -10 };
+
+  const resetCameraPosition = () => {
+    if (camera.current) {
+      camera.current.position.set(
+        galaxyPosition.x,
+        galaxyPosition.y,
+        galaxyPosition.z
+      );
+    }
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -111,7 +124,6 @@ const RoverScene = ({ roverId }: Props) => {
     allPotsGroup.current.add(flowersGroup.current);
     scene.add(allPotsGroup.current);
 
-    const galaxyPosition = { x: 0, y: 3, z: -10 };
     camera.current = new THREE.PerspectiveCamera(
       50,
       window.innerWidth / window.innerHeight,
@@ -288,6 +300,7 @@ const RoverScene = ({ roverId }: Props) => {
       <StatusCard status={status ?? 0} />
       <InfoPanel receivedData={currentStatus} />
       <ImageCard base64Image={currentStatus?.processed_image} />
+      <ResetCamera onClick={resetCameraPosition} />
       <canvas ref={canvasRef} id="webgl" />
     </div>
   );
