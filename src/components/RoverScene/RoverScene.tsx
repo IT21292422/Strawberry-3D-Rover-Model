@@ -115,8 +115,7 @@ const RoverScene = ({ roverId }: Props) => {
       powerPreference: "high-performance",
     });
     if (renderer.current) {
-      renderer.current.setSize(window.innerWidth, window.innerHeight, false);
-      renderer.current.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      renderer.current.setSize(window.innerWidth, window.innerHeight);
     }
     renderer.current.outputColorSpace = THREE.SRGBColorSpace;
 
