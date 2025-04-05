@@ -80,7 +80,7 @@ const RoverScene = ({ roverId }: Props) => {
 
           coordinates.forEach((coord: any) => {
             const flower = flowerTemplate.clone();
-            flower.position.x = (coord.x - 0.5) * 2;
+            flower.position.x = (coord.x - 0.5) * 1;
             flower.position.z = (coord.y - 0.5) * 2;
             flower.position.y = 0.7;
             flower.rotation.y = Math.random() * Math.PI;
@@ -109,9 +109,14 @@ const RoverScene = ({ roverId }: Props) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     if (renderer.current) return;
-    renderer.current = new THREE.WebGLRenderer({ canvas, antialias: true });
+    renderer.current = new THREE.WebGLRenderer({
+      canvas,
+      antialias: false,
+      powerPreference: "high-performance",
+    });
     if (renderer.current) {
-      renderer.current.setSize(window.innerWidth, window.innerHeight);
+      renderer.current.setSize(window.innerWidth, window.innerHeight, false);
+      renderer.current.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     }
     renderer.current.outputColorSpace = THREE.SRGBColorSpace;
 
