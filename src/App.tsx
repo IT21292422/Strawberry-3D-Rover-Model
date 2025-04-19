@@ -15,19 +15,28 @@ function App() {
   }
 
   const [receivedData, setReceivedData] = useState<MobileData | null>(null);
+  const [roverId, setRoverId] = useState<string | null>(null);
 
   useEffect(() => {
+    //Get roverId from query parameters
+    const queryParams = new URLSearchParams(window.location.search);
+    const queryRoverId = queryParams.get("roverId");
+
+    if (queryRoverId) {
+      console.log("Found roverId in query parameters: ", queryRoverId);
+      setRoverId(queryRoverId);
+    } else if (window.mobileData?.roverId) {
+      console.log("Found roverId in window object: ", window.mobileData.rover);
+      setRoverId(window.mobileData.roverId);
+    }
+
     // Define global function to handle mobile data
     window.handleMobileData = (data) => {
       console.log("Received data via global function:", data);
-      setReceivedData(data);
+      if (!roverId) {
+        setRoverId(data.roverId);
+      }
     };
-
-    // Check if data was already injected
-    if (window.mobileData) {
-      console.log("Found existing mobile data:", window.mobileData);
-      setReceivedData(window.mobileData);
-    }
 
     // Cleanup
     return () => {
@@ -37,7 +46,7 @@ function App() {
 
   return (
     <>
-      <RoverScene roverId={receivedData?.roverId as string} />
+      <RoverScene roverId={roverId as string} />
     </>
   );
 }
