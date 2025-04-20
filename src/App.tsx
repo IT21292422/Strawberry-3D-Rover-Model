@@ -10,11 +10,6 @@ declare global {
 }
 
 function App() {
-  interface MobileData {
-    roverId: string;
-  }
-
-  const [receivedData, setReceivedData] = useState<MobileData | null>(null);
   const [roverId, setRoverId] = useState<string | null>(null);
 
   useEffect(() => {
