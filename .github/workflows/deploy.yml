@@ -1,0 +1,23 @@
+name: Deploy to Azure
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build Docker image
+        run: |
+          docker build -t threejsmodelservice.azurecr.io/threejs-service .
+      - name: Login to Azure
+        uses: azure/docker-login@v1
+        with:
+          login-server: threejsmodelservice.azurecr.io
+          username: ${{ secrets.AZURE_USERNAME }}
+          password: ${{ secrets.AZURE_PASSWORD }}
+      - name: Push to ACR
+        run: |
+          docker push threejsmodelservice.azurecr.io/threejs-service
