@@ -261,7 +261,6 @@ const RoverScene = ({ roverId }: Props) => {
         );
         if (roverIntersect.length > 0) {
           console.log("Rover is clicked");
-          alert("Rover is clicked");
         }
       }
 
@@ -279,7 +278,6 @@ const RoverScene = ({ roverId }: Props) => {
         }
         if (potObject.userData.hasOwnProperty("index")) {
           console.log(`Pot ${potObject.userData.index} clicked!`);
-          alert(`${potObject.userData.index} pot is clicked`);
         }
       }
     };
@@ -287,20 +285,14 @@ const RoverScene = ({ roverId }: Props) => {
     window.addEventListener("resize", onWindowResize);
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-
-    if (roverId !== "demo") {
-      window.addEventListener("click", onMouseClick);
-    }
+    window.addEventListener("click", onMouseClick);
 
     // Cleanup on unmount
     return () => {
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-
-      if (roverId !== "demo") {
-        window.removeEventListener("click", onMouseClick);
-      }
+      window.removeEventListener("click", onMouseClick);
 
       renderer.current?.dispose();
     };
