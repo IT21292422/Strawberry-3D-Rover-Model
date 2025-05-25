@@ -247,6 +247,7 @@ const RoverScene = ({ roverId }: Props) => {
     };
 
     const onMouseClick = (event: MouseEvent) => {
+      if (roverId === "demo") return;
       mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -301,9 +302,13 @@ const RoverScene = ({ roverId }: Props) => {
 
   return (
     <div>
-      <StatusCard status={status ?? 0} />
-      <InfoPanel receivedData={currentStatus} />
-      <ImageCard base64Image={currentStatus?.processed_image} />
+      {roverId !== "demo" && (
+        <>
+          <StatusCard status={status ?? 0} />
+          <InfoPanel receivedData={currentStatus} />
+          <ImageCard base64Image={currentStatus?.processed_image} />
+        </>
+      )}
       <ResetCamera onClick={resetCameraPosition} />
       <canvas ref={canvasRef} id="webgl" />
     </div>
