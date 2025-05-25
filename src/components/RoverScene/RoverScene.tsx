@@ -247,7 +247,6 @@ const RoverScene = ({ roverId }: Props) => {
     };
 
     const onMouseClick = (event: MouseEvent) => {
-      if (roverId === "demo") return;
       mouse.current.x = (event.clientX / window.innerWidth) * 2 - 1;
       mouse.current.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -288,14 +287,21 @@ const RoverScene = ({ roverId }: Props) => {
     window.addEventListener("resize", onWindowResize);
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
-    window.addEventListener("click", onMouseClick);
+
+    if (roverId !== "demo") {
+      window.addEventListener("click", onMouseClick);
+    }
 
     // Cleanup on unmount
     return () => {
       window.removeEventListener("resize", onWindowResize);
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
-      window.removeEventListener("click", onMouseClick);
+
+      if (roverId !== "demo") {
+        window.removeEventListener("click", onMouseClick);
+      }
+
       renderer.current?.dispose();
     };
   }, []);
